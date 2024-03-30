@@ -33,12 +33,12 @@ play( as4@triangle, 1.25, 3.75 )
 converts to
 | 466.16 | 1.25 | 3.75 | triangle |
 
-Looking at the `note` portion, it follows the following format:
-(note name)(optional sharp/flat)(octave number)@(wave shape)
-note name - Name of the note from a-g. Will only be 1 character
-sharp/flat - This will be implemented using `s` and `b` symbols for sharp and flat respectively. Ofc this is optional
-octave number - a number from 0 to 8
-wave shape - one of the 5 wave shapes as specified above ie. sin, triangle, saw, square, kick
+Looking at the `note` portion, it follows the following format:  
+(note name)(optional sharp/flat)(octave number)@(wave shape)  
+note name - Name of the note from a-g. Will only be 1 character  
+sharp/flat - This will be implemented using `s` and `b` symbols for sharp and flat respectively. Ofc this is optional  
+octave number - a number from 0 to 8  
+wave shape - one of the 5 wave shapes as specified above ie. sin, triangle, saw, square, kick  
 
 In addition to this, the `note` can be substituted with a `chord`, which will be explained later.
 
