@@ -16,6 +16,8 @@ typedef enum {
     TOKEN_PUNCT_RIGHT_PAREN,
     TOKEN_PUNCT_LEFT_CURLY,
     TOKEN_PUNCT_RIGHT_CURLY,
+    TOKEN_PUNCT_LEFT_SQUARE,
+    TOKEN_PUNCT_RIGHT_SQUARE,
     TOKEN_PUNCT_END_OF_LINE,
     TOKEN_OP_AT,
     TOKEN_COMMA,
@@ -128,6 +130,8 @@ TokenType is_punctuation_strcmp(const char *lexeme) {
         {",", TOKEN_COMMA},
         {"{", TOKEN_PUNCT_LEFT_CURLY},
         {"}", TOKEN_PUNCT_RIGHT_CURLY},
+        {"[", TOKEN_PUNCT_LEFT_SQUARE},
+        {"]", TOKEN_PUNCT_RIGHT_SQUARE},
         {";", TOKEN_PUNCT_END_OF_LINE},
         {NULL, TOKEN_UNKNOWN} // Sentinel value
     };
@@ -314,6 +318,21 @@ int main() {
             ++current_position;
         }
     }
+
+    FILE *output_file = fopen("output.txt", "w");
+    if (output_file == NULL) {
+        fprintf(stderr, "Error opening output file\n");
+        return 1;
+    }
+
+    // Write token information to the file
+    for (size_t i = 0; i < token_count; i++) {
+        fprintf(output_file, "Token { type: %d, lexeme: '%s', line: '%d'}\n", 
+            token_stream[i]->type, token_stream[i]->lexeme, token_stream[i]->line_number);
+    }
+
+    // Close the output file
+    fclose(output_file);
 	
 	// Free tokens stream
     for (size_t i = 0; i < token_count; i++) {
