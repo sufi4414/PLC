@@ -177,16 +177,18 @@ bool check_at(Token **token_stream, size_t *index, size_t num_tokens) {
 
 bool match_play_statement(Token **token_stream, size_t num_tokens){
     size_t i = 0;
-    if(!check_play_keyword){return false;}
-    if(!check_left_paren){return false;}
-    if(!check_note){return false;}
-    if(!check_at){return false;}
-    if(!check_wav){return false;}
-    if(!check_comma){return false;}
-    if(!check_start){return false;}
-    if(!check_comma){return false;}
-    if(!check_stop){return false;}
-    if(!check_right_paren){return false;}
+
+
+    if(!check_play_keyword(token_stream, &i,num_tokens )){return false;}
+    if(!check_left_paren(token_stream, &i,num_tokens )){return false;}
+    if(!check_note(token_stream, &i,num_tokens )){return false;}
+    if(!check_at(token_stream, &i,num_tokens )){return false;}
+    if(!check_wav(token_stream, &i,num_tokens )){return false;}
+    if(!check_comma(token_stream, &i,num_tokens )){return false;}
+    if(!check_start(token_stream, &i,num_tokens )){return false;}
+    if(!check_comma(token_stream, &i,num_tokens )){return false;}
+    if(!check_stop(token_stream, &i,num_tokens )){return false;}
+    if(!check_right_paren(token_stream, &i,num_tokens )){return false;}
 
     return true;
 
