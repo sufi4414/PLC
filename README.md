@@ -174,9 +174,9 @@ Statement → PlayStatement
 
 Statement → LoopStatement
 
-~~Statement → ChordStatement~~ (Do later)
+Statement → ChordStatement
 
-~~Statement → SectionStatement~~
+~~Statement → SectionStatement~~ (Do later)
 
 PlayStatement → `play` `(` Note `,` `float` `,` `float` `)`
 
