@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <parser.h>
+// #include "parser.h"
 
 typedef enum {
     TOKEN_KEYWORD_PLAY,
@@ -130,13 +130,28 @@ void parse_note(Parser *parser) {
     consume(parser, TOKEN_IDENTIFIER, "Expected identifier");
 }
 
+void parse_chord(Parser *parser) {
+    consume(parser , TOKEN_IDENTIFIER, "Expected chord identifier");
+}
+
 void parse_playargs(Parser *parser) {
-    parse_note(parser);
-    consume(parser, TOKEN_COMMA, "Expected ','");
-    parse_number(parser);
-    consume(parser, TOKEN_COMMA, "Expected ','");
+
+    consume(parser, TOKEN_IDENTIFIER, "Expected identifier");
+
+    Token token = peek(parser);
+    if (token.type == TOKEN_OP_AT) {
+        consume(parser, TOKEN_OP_AT, "Expected '@'");
+        consume(parser, TOKEN_IDENTIFIER, "Expected waveform identifier after '@'");
+    }
+
+    consume(parser, TOKEN_COMMA, "Expected ',' after note or chord");
+
+    parse_number(parser); 
+    consume(parser, TOKEN_COMMA, "Expected ',' after first number");
     parse_number(parser);
 }
+
+
 
 void parse_playstatement(Parser *parser) {
     consume(parser, TOKEN_KEYWORD_PLAY, "Expected 'play'");
@@ -215,7 +230,7 @@ Token *read_tokens_from_file(const char *filename, size_t *count) {
     while (fscanf(file, " Token { type: %d, lexeme: '%255[^']', line: '%d'}", &type, lexeme, &line_number) == 3) {
         tokens = realloc(tokens, (*count + 1) * sizeof(Token));
         tokens[*count] = new_token(parse_token_type(type), lexeme, line_number);
-        printf("Read token: %s (type %d)\n", tokens[*count].lexeme, tokens[*count].type);
+      //  printf("Read token: %s (type %d)\n", tokens[*count].lexeme, tokens[*count].type);
         (*count)++;
     }
 
