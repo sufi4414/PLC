@@ -229,25 +229,14 @@ bool is_identifier_regex(const char *lexeme) {
     return false;
 }
 
-// Tokenizer v1.3
-// Almost same thing as before
 int main() {
-	// Load source code from file 
-    // For testing, will put code string in source_code string directly (simpler).
-    // You can uncomment/comment things as needed, if you want to play with a source.c file instead.
-    
+
     const char *filename = "test.txt";
     char *source_code = read_source_code(filename);
     if (source_code == NULL) {
         fprintf(stderr, "Error reading source code from '%s'\n", filename);
         return 1;
     }
-    
-   /*
-   char *source_code = strdup("int x =7 float 2.5e-1 char 'a' char* \"hello\"; \n"
-							   "while( for) if== return 1t0 +- @ * / & &&;");
-   */
-    
 
 	// Create tokens stream
     Token **token_stream = NULL;
@@ -272,17 +261,6 @@ int main() {
             TokenType candidate_token_type = TOKEN_UNKNOWN;
             size_t candidate_match_length = i - current_position + 1;
 			
-			// If at least one match on one of the possible token types,
-			// candidate_token_type will be the first token match found.
-			// (This is the reason why we have ordered our enum a certain way)
-			// Additional note: In the given if statement, we will evaluate each condition
-			// one by one using short-circuit evaluation. 
-			// As soon as one condition evaluates to true (i.e., the candidate_token_type is not TOKEN_UNKNOWN),
-			// the remaining conditions will not be evaluated, and the if block will execute.
-			// In this case, the candidate_token_type variable will have the value of the first
-			// "non-TOKEN_UNKNOWN" token type found during the evaluation of the conditions.
-			// The other conditions will not execute after that, and the code inside the if block will be executed
-			// using the found token_type and the corresponding matched_lexeme.
             if ((candidate_token_type = is_keyword_strcmp(candidate_lexeme)) != TOKEN_UNKNOWN ||
                 (candidate_token_type = is_operator_strcmp(candidate_lexeme)) != TOKEN_UNKNOWN ||
                 (candidate_token_type = is_punctuation_strcmp(candidate_lexeme)) != TOKEN_UNKNOWN ||
