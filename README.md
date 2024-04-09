@@ -160,22 +160,86 @@ play_section(B, 48)
 
 ```
 
+## LL(1) Grammar Rules
 
-split work:
+Here are the cfg rules. Terminals are in `code blocks`.
 
-set 1:
-- convert intermediate language to code and write out the file
+----
 
-set 2:
-- `loop`
-- define `chord`s
+START →  Statement
 
-set 3:
-- `section`s
+Statement →  
 
-set 4:
-- deal with basic `play` functions and turn them into csv
+Statement → PlayStatement
 
+Statement → LoopStatement
+
+~~Statement → ChordStatement~~ (Do later)
+
+~~Statement → SectionStatement~~
+
+PlayStatement → `play` `(` Note `,` `float` `,` `float` `)`
+
+PlayStatement → `play` `(` `chord name` `,` `float` `,` `float` `)`
+
+Note → `note name` `integer` `@` `wave type` 
+
+LoopStatement → `loop` `(` `float` `,` `float` `,` `integer` `)` `{` Statement `}`
+
+
+
+### LL(1) Table
+
+Refer to Pyster's Compiler Basic Chapter 3.12.2: Table-driven LL(1) parsing
+
+We can use this table to parse the LL(1) grammar (or use it as a guideline for recursive descent). If any symbols are not stated in the table, 
+
+----
+
+|Input Symbol| Any |
+|--------------|-----------|
+|START | Statement|
+
+|Input Symbol| `play` |`loop`|
+|--------------|-----------|-|
+|Statement| PlayStatement Statement | LoopStatement Statement |
+
+|Input Symbol| `note name` |
+|--------------|-----------|
+|Note | `note name` `integer` `@` `wave type` |
+
+
+|Input Symbol| `play` |
+|--------------|-----------|
+|PlayStatement| `play` `(` Note `,` `float` `,` `float` `)`|
+
+|Input Symbol| `loop` |
+|--------------|-----------|
+|LoopStatement|`loop` `(` `float` `,` `float` `,` `integer` `)` `{` Statement `}` |
+
+
+
+## Translating Into the Intermediate Language
+
+Refer to Pyster's Compiler Basics Chapter 7.5: Generating code from expressions
+
+I'm not really sure if this is how we're supposed to do it
+
+Here is a table of how we can translate the expressions into intermediate code (the csv table)
+
+---
+
+|Trans-Exp||
+|--------------|-----------|
+|play(note, start, end)| code<sub>1</sub> ++ noteToFrequency(note), start, end\\n|
+|loop(start time, duration, times to loop){Statement}| code<sub>1</sub>  ++ Offset(Statement, duration * i for i < times to loop) \\n|
+
+
+For the offset function, you basically copy and paste the contents of the Statement, but add the offset
+
+|Offset||
+|---|---|
+|Offset(play(note, start, end))|play(note, start+offset, end+offset)|
 
 
 

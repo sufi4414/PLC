@@ -1,0 +1,10 @@
+Token { type: 0, lexeme: 'play', line: '1'}
+Token { type: 3, lexeme: '(', line: '1'}
+Token { type: 12, lexeme: 'c3', line: '1'}
+Token { type: 10, lexeme: '@', line: '1'}
+Token { type: 12, lexeme: 'saw', line: '1'}
+Token { type: 11, lexeme: ',', line: '1'}
+Token { type: 13, lexeme: '0', line: '1'}
+Token { type: 11, lexeme: ',', line: '1'}
+Token { type: 13, lexeme: '1', line: '1'}
+Token { type: 4, lexeme: ')', line: '1'}
