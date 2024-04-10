@@ -90,6 +90,53 @@ void read_tokens_and_enqueue(const char *filename, Queue *queue) {
 
     fclose(file);
 }
+//converting note to freq
+typedef struct {
+    char *noteName;
+    double frequencies[9];
+} NoteFreq;
+
+NoteFreq noteFrequencies[] = {
+    {"c", {16.35, 32.7, 65.41, 130.81, 261.63, 523.25, 1046.5, 2093, 4186}},
+    {"cs", {17.32, 34.65, 69.3, 138.59, 277.18, 554.37, 1108.73, 2217.46, 4434.92}},
+    {"d", {18.35, 36.71, 73.42, 146.83, 293.66, 587.33, 1174.66, 2349.32, 4698.63}},
+    {"ds", {19.45, 38.89, 77.78, 155.56, 311.13, 622.25, 1244.51, 2489, 4978}},
+    {"e", {20.6, 41.2, 82.41, 164.81, 329.63, 659.25, 1318.51, 2637, 5274}},
+    {"f", {21.83, 43.65, 87.31, 174.61, 349.23, 698.46, 1396.91, 2793.83, 5587.65}},
+    {"fs", {23.12, 46.25, 92.5, 185, 369.99, 739.99, 1479.98, 2959.96, 5919.91}},
+    {"g", {24.5, 49, 98, 196, 392, 783.99, 1567.98, 3135.96, 6271.93}},
+    {"gs", {25.96, 51.91, 103.83, 207.65, 415.3, 830.61, 1661.22, 3322.44, 6644.88}},
+    {"a", {27.5, 55, 110, 220, 440, 880, 1760, 3520, 7040}},
+    {"as", {29.14, 58.27, 116.54, 233.08, 466.16, 932.33, 1864.66, 3729.31, 7458.62}},
+    {"b", {30.87, 61.74, 123.47, 246.94, 493.88, 987.77, 1975.53, 3951, 7902.13}}
+};
+// Function to convert note name to frequency
+double note_to_frequency( char *noteToken) {
+    // Implementation of note to frequency conversion goes here
+    // You can use a lookup table or a mathematical formula to convert note names to frequencies
+    // Extract the note name and octave from the note token
+    char noteName[3];
+    int octave;
+    if (strlen(noteToken) == 3) {
+        strncpy(noteName, noteToken, 2);
+        noteName[2] = '\0';
+        octave = atoi(&noteToken[2]);
+    } else {
+        noteName[0] = noteToken[0];
+        noteName[1] = '\0';
+        octave = atoi(&noteToken[1]);
+    }
+    // Find the corresponding note in the array
+    for (int i = 0; i < sizeof(noteFrequencies) / sizeof(noteFrequencies[0]); i++) {
+        if (strcmp(noteFrequencies[i].noteName, noteName) == 0) {
+            // Return the frequency of the note at the specified octave
+            return noteFrequencies[i].frequencies[octave];
+        }
+    }
+    // If note not found, return -1 or handle the error as needed
+    return -1.0;
+
+}
 
 void analyze_and_export_to_csv(Queue *queue, const char *csvFileName, SymbolTable *symbolTable) {
     FILE *csvFile = fopen(csvFileName, "w");
@@ -118,14 +165,19 @@ void analyze_and_export_to_csv(Queue *queue, const char *csvFileName, SymbolTabl
 
                 // It's a chord, handle each note in the chord
                 for (int i = 0; i < chord->noteCount; i++) {
-                    fprintf(csvFile, "%s, ", chord->notes[i].name);
+                    //fprintf(csvFile, "%s, ", chord->notes[i].name);
+                    double frequency = note_to_frequency(chord->notes[i].name);
+                    fprintf(csvFile, "%.2f, ", frequency);
                     fprintf(csvFile, "%s, %s, %s\n", firstNumberToken.lexeme, secondNumberToken.lexeme, chord->notes[i].wave);
                 }
                 
                 queue_dequeue(queue); // Skip ')' at the end, assuming correct syntax
             } else {
                 // Assume it's a note if not found as a chord
-                fprintf(csvFile, "%s, ", identifierToken.lexeme);
+                //fprintf(csvFile, "%s, ", identifierToken.lexeme);
+                //adding the frequency here
+                double frequency = note_to_frequency(identifierToken.lexeme);
+                fprintf(csvFile, "%.2f, ", frequency);
 
                 queue_dequeue(queue); // Skip '@'
 
