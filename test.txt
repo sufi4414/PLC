@@ -1,1 +1,4 @@
-play(c3@saw, 0, 1)
+chord Cmaj [c3@saw, e3@saw, g3@saw]
+play(Cmaj, 2.25, 3)
+play( as4@triangle, 1.25, 3.75 )
+play(Dmaj, 2.25, 3)

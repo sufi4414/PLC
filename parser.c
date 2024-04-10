@@ -1,29 +1,29 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-// #include "parser.h"
+#include "tokens.h"
 
-typedef enum {
-    TOKEN_KEYWORD_PLAY,
-	TOKEN_KEYWORD_LOOP,
-	TOKEN_KEYWORD_CHORD,
-    TOKEN_PUNCT_LEFT_PAREN,
-    TOKEN_PUNCT_RIGHT_PAREN,
-    TOKEN_PUNCT_LEFT_CURLY,
-    TOKEN_PUNCT_RIGHT_CURLY,
-    TOKEN_PUNCT_LEFT_SQUARE,
-    TOKEN_PUNCT_RIGHT_SQUARE,
-    TOKEN_PUNCT_END_OF_LINE,
-    TOKEN_OP_AT,
-    TOKEN_COMMA,
-	TOKEN_IDENTIFIER,
-	TOKEN_LITERAL_INT,
-    TOKEN_LITERAL_FLOAT,
-    TOKEN_LITERAL_CHAR,
-    TOKEN_LITERAL_STRING,
-    TOKEN_UNKNOWN
-} TokenType;
+/*
+some grammar rules
 
+chord Cmaj [c3@saw, e3@saw, g3@saw]
+play(Cmaj, 2.25, 3)
+
+start -> statementlist
+statementlist -> statement statementlist | ε
+statement -> playstatement | chordstatement
+
+playstatement -> TOKEN_KEYWORD_PLAY TOKEN_PUNCT_LEFT_PAREN playargs TOKEN_PUNCT_RIGHT_PAREN
+playargs -> TOKEN_IDENTIFIER TOKEN_COMMA number TOKEN_COMMA number
+number -> TOKEN_LITERAL_FLOAT | TOKEN_LITERAL_INT
+
+
+chordstatement -> TOKEN_KEYWORD_CHORD TOKEN_IDENTIFIER TOKEN_PUNCT_LEFT_SQUARE chordnotes TOKEN_PUNCT_RIGHT_SQUARE
+chordnotes -> note chordtail
+chordtail -> TOKEN_COMMA note chordtail | ε
+note -> TOKEN_IDENTIFIER TOKEN_OP_AT TOKEN_IDENTIFIER
+
+*/
 TokenType parse_token_type(int type) {
     switch (type) {
         case 0: return TOKEN_KEYWORD_PLAY;
@@ -47,40 +47,53 @@ TokenType parse_token_type(int type) {
     }
 }
 
+SymbolTable *create_symbol_table() {
+    SymbolTable *table = (SymbolTable *)malloc(sizeof(SymbolTable));
+    if (table) {
+        table->head = NULL;
+    }
+    return table;
+}
 
-/*
-some grammar rules
+void symbol_table_insert_chord(SymbolTable *table, Chord *chord) {
+    SymbolNode *node = (SymbolNode *)malloc(sizeof(SymbolNode));
+    if (node) {
+        node->identifier = strdup(chord->name);
+        node->chord = chord; // Assume the chord has been allocated and set up properly
+        node->next = table->head;
+        table->head = node;
+    }
+}
 
-chord Cmaj [c3@saw, e3@saw, g3@saw]
-play(Cmaj, 2.25, 3)
+Chord *symbol_table_lookup_chord(SymbolTable *table, const char *identifier) {
+    SymbolNode *current = table->head;
+    while (current != NULL) {
+        if (strcmp(current->identifier, identifier) == 0) {
+            return current->chord;
+        }
+        current = current->next;
+    }
+    return NULL; // Not found
+}
 
-program -> statementlist
-statementlist -> statement statementlist | ε
-statement -> playstatement | chordstatement
+void free_symbol_table(SymbolTable *table) {
+    SymbolNode *current = table->head;
+    while (current != NULL) {
+        SymbolNode *temp = current;
+        current = current->next;
+        free(temp->identifier);
+        if (temp->chord) {
+            for (int i = 0; i < temp->chord->noteCount; i++) {
+                free(temp->chord->notes[i].name);
+                free(temp->chord->notes[i].wave);
+            }
+            free(temp->chord->notes);
+            free(temp->chord);
+        }
+        free(temp);
+    }
+}
 
-playstatement -> TOKEN_KEYWORD_PLAY TOKEN_PUNCT_LEFT_PAREN playargs TOKEN_PUNCT_RIGHT_PAREN
-playargs -> TOKEN_IDENTIFIER TOKEN_COMMA number TOKEN_COMMA number
-number -> TOKEN_LITERAL_FLOAT | TOKEN_LITERAL_INT
-
-
-chordstatement -> TOKEN_KEYWORD_CHORD TOKEN_IDENTIFIER TOKEN_PUNCT_LEFT_SQUARE chordnotes TOKEN_PUNCT_RIGHT_SQUARE
-chordnotes -> note chordtail
-chordtail -> TOKEN_COMMA note chordtail | ε
-note -> TOKEN_IDENTIFIER TOKEN_OP_AT TOKEN_IDENTIFIER
-
-*/
-
-typedef struct {
-    TokenType type;
-    char *lexeme;
-    int line_number;
-} Token;
-
-typedef struct {
-    Token *tokens;
-    size_t count;
-    size_t current;
-} Parser;
 
 void error(const char *message) {
     fprintf(stderr, "Error: %s\n", message);
@@ -160,44 +173,81 @@ void parse_playstatement(Parser *parser) {
     consume(parser, TOKEN_PUNCT_RIGHT_PAREN, "Expected ')'");
 }
 
-void parse_chordnotes(Parser *parser) {
-    parse_note(parser);
-    while (peek(parser).type == TOKEN_COMMA) {
-        advance(parser); // Consume the comma
-        parse_note(parser);
-    }
+Note *parse_chordnotes(Parser *parser, int *noteCount) {
+    int count = 0;
+    int capacity = 4;
+    Note *notes = malloc(capacity * sizeof(Note));
+
+    do {
+        if (peek(parser).type == TOKEN_COMMA) {
+            advance(parser); // Consume the comma
+        }
+        // consume(parser, TOKEN_IDENTIFIER, "Expected note identifier");
+        Token noteName = advance(parser);
+        consume(parser, TOKEN_OP_AT, " parsechordnotes Expected '@'");
+        Token waveName = advance(parser);
+        
+        if (count >= capacity) {
+            capacity *= 2;
+            notes = realloc(notes, capacity * sizeof(Note));
+        }
+
+        notes[count].name = strdup(noteName.lexeme);
+        notes[count].wave = strdup(waveName.lexeme);
+        count++;
+    } while (peek(parser).type == TOKEN_COMMA);
+
+    *noteCount = count;
+    return notes;
 }
 
-void parse_chordstatement(Parser *parser) {
+void parse_chordstatement(Parser *parser, SymbolTable *symbolTable) {
     consume(parser, TOKEN_KEYWORD_CHORD, "Expected 'chord'");
-    consume(parser, TOKEN_IDENTIFIER, "Expected identifier");
+    Token chordName = advance(parser);
     consume(parser, TOKEN_PUNCT_LEFT_SQUARE, "Expected '['");
-    parse_chordnotes(parser);
+
+    int noteCount;
+    Note *notes = parse_chordnotes(parser, &noteCount);
+
     consume(parser, TOKEN_PUNCT_RIGHT_SQUARE, "Expected ']'");
+
+    Chord *chord = malloc(sizeof(Chord));
+    chord->name = strdup(chordName.lexeme);
+    chord->notes = notes;
+    chord->noteCount = noteCount;
+
+    symbol_table_insert_chord(symbolTable, chord);
 }
 
-void parse_statement(Parser *parser) {
+
+void parse_statement(Parser *parser, SymbolTable *symbolTable) {
     switch (peek(parser).type) {
         case TOKEN_KEYWORD_PLAY:
             parse_playstatement(parser);
             break;
         case TOKEN_KEYWORD_CHORD:
-            parse_chordstatement(parser);
+            parse_chordstatement(parser, symbolTable);
             break;
         default:
             error("Expected 'play' or 'chord'");
     }
 }
 
-void parse_statementlist(Parser *parser) {
+void parse_statementlist(Parser *parser, SymbolTable *symbolTable) {
     while (parser->current < parser->count) {
-        parse_statement(parser);
+        parse_statement(parser, symbolTable);
     }
 }
 
-void parse_program(Parser *parser) {
-    parse_statementlist(parser);
+SymbolTable *parse_program(Parser *parser) {
+    SymbolTable *symbolTable = malloc(sizeof(SymbolTable));
+    symbolTable->head = NULL;
+
+    parse_statementlist(parser, symbolTable);
+
+    return symbolTable;
 }
+
 
 Token new_token(TokenType type, const char* lexeme, int line_number) {
     Token token;
@@ -238,23 +288,17 @@ Token *read_tokens_from_file(const char *filename, size_t *count) {
     return tokens;
 }
 
-
-int main() {
-
-    size_t num_tokens;
-    Token *tokens = read_tokens_from_file("output.txt", &num_tokens);
-
-    // Initialize the parser with the token stream
-    Parser parser;
-    parser.tokens = tokens;
-    parser.count = num_tokens;
-    parser.current = 0;
-
-    // Now you can parse the program
-    parse_program(&parser);
-
-    // Free the allocated resources for tokens
-    free_token_resources(tokens, num_tokens);
-
-    return 0;
+void print_symbol_table(SymbolTable *table) {
+    SymbolNode *current = table->head;
+    printf("Symbol Table:\n");
+    while (current != NULL) {
+        printf("Identifier: %s\n", current->identifier);
+        printf("Chord Name: %s\n", current->chord->name);
+        printf("Notes:\n");
+        for (int i = 0; i < current->chord->noteCount; i++) {
+            printf("  Note Name: %s, Waveform: %s\n", current->chord->notes[i].name, current->chord->notes[i].wave);
+        }
+        printf("\n");
+        current = current->next;
+    }
 }
