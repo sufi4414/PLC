@@ -215,7 +215,7 @@ bool is_string_literal_regex(const char *lexeme) {
 
 // Recognizing identifiers using RegEx
 bool is_identifier_regex(const char *lexeme) {
-    const char *pattern = "^[a-zA-Z_]\\w*$";
+    const char *pattern = "^[a-zA-Z][A-Za-z0-9_]*$";
     regex_t regex;
     int result = regcomp(&regex, pattern, REG_EXTENDED | REG_NOSUB);
     if (result != 0) {
@@ -227,6 +227,7 @@ bool is_identifier_regex(const char *lexeme) {
         return true;
     }
     return false;
+
 }
 
 int main() {
