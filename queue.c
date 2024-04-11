@@ -138,6 +138,61 @@ double note_to_frequency( char *noteToken) {
 
 }
 
+void handle_play( Queue *queue, FILE *csvFile, SymbolTable *symbolTable) {
+    queue_dequeue(queue); // Skip '(' assuming correct syntax
+
+    Token identifierToken = queue_dequeue(queue); // Could be a note or a chord identifier
+
+    // Check if identifier is a chord in the symbol table
+    Chord *chord = symbol_table_lookup_chord(symbolTable, identifierToken.lexeme);
+    if (chord) {
+        queue_dequeue(queue); // Skip ','
+        Token firstNumberToken = queue_dequeue(queue); // First number
+        
+        queue_dequeue(queue); // Skip ','
+        Token secondNumberToken = queue_dequeue(queue); // Second number
+
+        if (strcmp(firstNumberToken.lexeme, secondNumberToken.lexeme) > 0) {
+            fprintf(stderr, "Error: Start time is greater than end time\n");
+            exit(1); 
+        }
+
+        // It's a chord, handle each note in the chord
+        for (int i = 0; i < chord->noteCount; i++) {
+            //fprintf(csvFile, "%s, ", chord->notes[i].name);
+            double frequency = note_to_frequency(chord->notes[i].name);
+            fprintf(csvFile, "%.2f, ", frequency);
+            fprintf(csvFile, "%s, %s, %s\n", firstNumberToken.lexeme, secondNumberToken.lexeme, chord->notes[i].wave);
+        }
+        
+        queue_dequeue(queue); // Skip ')' at the end, assuming correct syntax
+    } else {
+        // Assume it's a note if not found as a chord
+        //fprintf(csvFile, "%s, ", identifierToken.lexeme);
+        //adding the frequency here
+        double frequency = note_to_frequency(identifierToken.lexeme);
+        fprintf(csvFile, "%.2f, ", frequency);
+
+        queue_dequeue(queue); // Skip '@'
+
+        Token waveToken = queue_dequeue(queue); 
+        queue_dequeue(queue); // Skip ','
+
+        Token firstNumberToken = queue_dequeue(queue); // First number
+        queue_dequeue(queue); // Skip ','
+
+        Token secondNumberToken = queue_dequeue(queue); // Second number
+        queue_dequeue(queue); // Skip ')' at the end, assuming correct syntax
+
+        if (strcmp(firstNumberToken.lexeme, secondNumberToken.lexeme) > 0) {
+            fprintf(stderr, "Error: Start time is greater than end time\n");
+            exit(1); // Stop the program due to error
+        }
+        // Continue writing the rest of the data to CSV
+        fprintf(csvFile, "%s, %s, %s\n", firstNumberToken.lexeme, secondNumberToken.lexeme, waveToken.lexeme);
+    }
+}
+
 void analyze_and_export_to_csv(Queue *queue, const char *csvFileName, SymbolTable *symbolTable) {
     FILE *csvFile = fopen(csvFileName, "w");
     if (!csvFile) {
@@ -149,50 +204,7 @@ void analyze_and_export_to_csv(Queue *queue, const char *csvFileName, SymbolTabl
         Token token = queue_dequeue(queue);
 
         if (token.type == TOKEN_KEYWORD_PLAY) {
-            queue_dequeue(queue); // Skip '(' assuming correct syntax
-
-            Token identifierToken = queue_dequeue(queue); // Could be a note or a chord identifier
-
-            // Check if identifier is a chord in the symbol table
-            Chord *chord = symbol_table_lookup_chord(symbolTable, identifierToken.lexeme);
-            if (chord) {
-                queue_dequeue(queue); // Skip ','
-                Token firstNumberToken = queue_dequeue(queue); // First number
-                
-                queue_dequeue(queue); // Skip ','
-                Token secondNumberToken = queue_dequeue(queue); // Second number
-                // queue_dequeue(queue); // Skip ')' at the end, assuming correct syntax
-
-                // It's a chord, handle each note in the chord
-                for (int i = 0; i < chord->noteCount; i++) {
-                    //fprintf(csvFile, "%s, ", chord->notes[i].name);
-                    double frequency = note_to_frequency(chord->notes[i].name);
-                    fprintf(csvFile, "%.2f, ", frequency);
-                    fprintf(csvFile, "%s, %s, %s\n", firstNumberToken.lexeme, secondNumberToken.lexeme, chord->notes[i].wave);
-                }
-                
-                queue_dequeue(queue); // Skip ')' at the end, assuming correct syntax
-            } else {
-                // Assume it's a note if not found as a chord
-                //fprintf(csvFile, "%s, ", identifierToken.lexeme);
-                //adding the frequency here
-                double frequency = note_to_frequency(identifierToken.lexeme);
-                fprintf(csvFile, "%.2f, ", frequency);
-
-                queue_dequeue(queue); // Skip '@'
-
-                Token waveToken = queue_dequeue(queue); 
-                queue_dequeue(queue); // Skip ','
-
-                Token firstNumberToken = queue_dequeue(queue); // First number
-                queue_dequeue(queue); // Skip ','
-
-                Token secondNumberToken = queue_dequeue(queue); // Second number
-                queue_dequeue(queue); // Skip ')' at the end, assuming correct syntax
-
-                // Continue writing the rest of the data to CSV
-                fprintf(csvFile, "%s, %s, %s\n", firstNumberToken.lexeme, secondNumberToken.lexeme, waveToken.lexeme);
-            }
+            handle_play(queue, csvFile, symbolTable);
         }
     }
 
