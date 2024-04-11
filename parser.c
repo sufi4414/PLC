@@ -220,33 +220,33 @@ void parse_chordstatement(Parser *parser, SymbolTable *symbolTable) {
 }
 
 
-void parse_statement(Parser *parser, SymbolTable *symbolTable) {
-    switch (peek(parser).type) {
-        case TOKEN_KEYWORD_PLAY:
-            parse_playstatement(parser);
-            break;
-        case TOKEN_KEYWORD_CHORD:
-            parse_chordstatement(parser, symbolTable);
-            break;
-        default:
-            error("Expected 'play' or 'chord'");
-    }
-}
+// void parse_statement(Parser *parser, SymbolTable *symbolTable) {
+//     switch (peek(parser).type) {
+//         case TOKEN_KEYWORD_PLAY:
+//             parse_playstatement(parser);
+//             break;
+//         case TOKEN_KEYWORD_CHORD:
+//             parse_chordstatement(parser, symbolTable);
+//             break;
+//         default:
+//             error("Expected 'play' or 'chord'");
+//     }
+// }
 
-void parse_statementlist(Parser *parser, SymbolTable *symbolTable) {
-    while (parser->current < parser->count) {
-        parse_statement(parser, symbolTable);
-    }
-}
+// void parse_statementlist(Parser *parser, SymbolTable *symbolTable) {
+//     while (parser->current < parser->count) {
+//         parse_statement(parser, symbolTable);
+//     }
+// }
 
-SymbolTable *parse_program(Parser *parser) {
-    SymbolTable *symbolTable = malloc(sizeof(SymbolTable));
-    symbolTable->head = NULL;
+// SymbolTable *parse_program(Parser *parser) {
+//     SymbolTable *symbolTable = malloc(sizeof(SymbolTable));
+//     symbolTable->head = NULL;
 
-    parse_statementlist(parser, symbolTable);
+//     parse_statementlist(parser, symbolTable);
 
-    return symbolTable;
-}
+//     return symbolTable;
+// }
 
 
 Token new_token(TokenType type, const char* lexeme, int line_number) {
