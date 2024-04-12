@@ -219,6 +219,32 @@ void parse_chordstatement(Parser *parser, SymbolTable *symbolTable) {
     symbol_table_insert_chord(symbolTable, chord);
 }
 
+void parse_loopstatement(Parser *parser, SymbolTable *symbolTable) {
+    consume(parser, TOKEN_KEYWORD_LOOP, "Expected 'loop'");
+    consume(parser, TOKEN_PUNCT_LEFT_PAREN, "Expected '('");
+
+    parse_number(parser);
+    consume(parser, TOKEN_COMMA, "Expected ',' after start time");
+    parse_number(parser);
+    consume(parser, TOKEN_COMMA, "Expected ',' after duration");
+    parse_number(parser);
+
+    consume(parser, TOKEN_PUNCT_RIGHT_PAREN, "Expected ')'");
+
+    consume(parser, TOKEN_PUNCT_LEFT_CURLY, "Expected '{'");
+
+    // Parse play statements inside the loop
+    while (peek(parser).type != TOKEN_PUNCT_RIGHT_CURLY) {
+        if (peek(parser).type == TOKEN_KEYWORD_PLAY) {
+            parse_playstatement(parser);
+        } else {
+            error("Expected 'play' statement inside loop");
+        }
+    }
+
+    consume(parser, TOKEN_PUNCT_RIGHT_CURLY, "Expected '}'");
+}
+
 
 // void parse_statement(Parser *parser, SymbolTable *symbolTable) {
 //     switch (peek(parser).type) {

@@ -9,7 +9,7 @@ typedef enum {
     INITIAL_STATE,
     PARSE_CHORD_STATEMENT,
     PARSE_PLAY_STATEMENT,
-    // PARSE_LOOP_STATEMENT, // Uncomment after loop function is included
+    PARSE_LOOP_STATEMENT, // Uncomment after loop function is included
     ERROR_STATE
 } ParserState;
 
@@ -20,6 +20,7 @@ typedef struct {
 
 void parse_playstatement(Parser *parser);
 void parse_chordstatement(Parser *parser, SymbolTable *symbolTable);
+void parse_loopstatement(Parser *parser, SymbolTable *symbolTable);
 // Add the loop function here
 SymbolTable *create_symbol_table();
 Token peek(Parser *parser);
@@ -43,10 +44,10 @@ void parse_statement(Parser *parser, SymbolTable *symbolTable) {
                 current_state = PARSE_CHORD_STATEMENT;
             }
             // Uncomment after loop is added
-            // else if (peek(parser).type == 1)
-            // {
-            //     current_state = PARSE_LOOP_STATEMENT;
-            // }
+            else if (peek(parser).type == 1)
+            {
+                current_state = PARSE_LOOP_STATEMENT;
+            }
             break;
         case PARSE_CHORD_STATEMENT:
             parse_chordstatement(parser, symbolTable);
@@ -56,10 +57,11 @@ void parse_statement(Parser *parser, SymbolTable *symbolTable) {
             parse_playstatement(parser);
             current_state = INITIAL_STATE;
             break;
-        // case PARSE_LOOP_STATEMENT:
-        //     // Add the loop function
-        //     current_state = INITIAL_STATE;
-        //     break;
+        case PARSE_LOOP_STATEMENT:
+            // Add the loop function
+            parse_loopstatement(parser, symbolTable);
+            current_state = INITIAL_STATE;
+            break;
         default:
             handle_error("Syntax Error");
             current_state = ERROR_STATE;
