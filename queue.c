@@ -13,7 +13,15 @@ typedef struct {
     QueueNode *rear;
 } Queue;
 
-
+int is_valid_waveform(char *wave) {
+    char *valid_waveforms[] = {"sin", "triangle", "saw", "square", "kick"};
+    for (int i = 0; i < sizeof(valid_waveforms) / sizeof(valid_waveforms[0]); i++) {
+        if (strcmp(wave, valid_waveforms[i]) == 0) {
+            return 1; // valid
+        }
+    }
+    return 0; // invalid
+}
 
 void queue_enqueue(Queue *queue, Token token) {
     QueueNode *newNode = (QueueNode *)malloc(sizeof(QueueNode));
@@ -160,6 +168,12 @@ void handle_play( Queue *queue, FILE *csvFile, SymbolTable *symbolTable) {
         // It's a chord, handle each note in the chord
         for (int i = 0; i < chord->noteCount; i++) {
             //fprintf(csvFile, "%s, ", chord->notes[i].name);
+
+            if (!is_valid_waveform(chord->notes[i].wave)) {
+                fprintf(stderr, "Error: Invalid waveform %s\n", chord->notes[i].wave);
+                exit(1);
+            }
+
             double frequency = note_to_frequency(chord->notes[i].name);
             fprintf(csvFile, "%.2f, ", frequency);
             fprintf(csvFile, "%s, %s, %s\n", firstNumberToken.lexeme, secondNumberToken.lexeme, chord->notes[i].wave);
@@ -175,7 +189,12 @@ void handle_play( Queue *queue, FILE *csvFile, SymbolTable *symbolTable) {
 
         queue_dequeue(queue); // Skip '@'
 
-        Token waveToken = queue_dequeue(queue); 
+        Token waveToken = queue_dequeue(queue);
+        if (!is_valid_waveform(waveToken.lexeme)) {
+            fprintf(stderr, "Error: Invalid waveform %s\n", waveToken.lexeme);
+            exit(1);
+        }
+
         queue_dequeue(queue); // Skip ','
 
         Token firstNumberToken = queue_dequeue(queue); // First number
@@ -192,30 +211,7 @@ void handle_play( Queue *queue, FILE *csvFile, SymbolTable *symbolTable) {
         fprintf(csvFile, "%s, %s, %s\n", firstNumberToken.lexeme, secondNumberToken.lexeme, waveToken.lexeme);
     }
 }
-/*
-loop(5, 4, 3) {
-    play(c3@saw, 0, 1)
-    play(e3@saw, 1, 2)
-    play(g3@saw, 2, 3)
-  }
-  translates to
-// this is the first time playing the loop, offset is 5+0*4 = 5.0
-play(c3@saw, 5.0, 6.0)
-play(e3@saw, 6.0, 7.0)
-play(g3@saw, 7.0, 8.0)
 
-// this is the second time playing the loop, offset is 5+1*4 = 9.0
-play(c3@saw, 9.0, 10.0)
-play(e3@saw, 10.0, 11.0)
-play(g3@saw, 11.0, 12.0)
-
-// this is the third and last time playing the loop, offset is 5+2*4 = 13.0
-play(c3@saw, 13.0, 14.0)
-play(e3@saw, 14.0, 15.0)
-play(g3@saw, 15.0, 16.0)
-
-  }
-*/
 void handle_play_offset(Queue *queue, FILE *csvFile, SymbolTable *symbolTable, float startTime, float offset, int repetitions) {
     queue_dequeue(queue); //skip "("
     Token identifierToken = queue_dequeue(queue); // Could be a note or a chord identifier
@@ -236,6 +232,11 @@ void handle_play_offset(Queue *queue, FILE *csvFile, SymbolTable *symbolTable, f
         float end = atof(secondNumberToken.lexeme) + startTime + i * offset;
         // It's a chord, handle each note in the chord
             for (int j = 0; j < chord->noteCount; j++) {
+                if (!is_valid_waveform(chord->notes[j].wave)) {
+                    fprintf(stderr, "Error: Invalid waveform %s\n", chord->notes[j].wave);
+                    exit(1);
+                }
+
                 double frequency = note_to_frequency(chord->notes[j].name);
                 fprintf(csvFile, "%.2f, ", frequency);
                 fprintf(csvFile, "%.2f, ",  start );
@@ -251,7 +252,12 @@ void handle_play_offset(Queue *queue, FILE *csvFile, SymbolTable *symbolTable, f
 
         queue_dequeue(queue); // Skip '@'
 
-        Token waveToken = queue_dequeue(queue); 
+        Token waveToken = queue_dequeue(queue);
+        if (!is_valid_waveform(waveToken.lexeme)) {
+            fprintf(stderr, "Error: Invalid waveform %s\n", waveToken.lexeme);
+            exit(1);
+        }
+
         queue_dequeue(queue); // Skip ','
 
         Token firstNumberToken = queue_dequeue(queue); // First number
