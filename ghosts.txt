@@ -1,0 +1,13 @@
+chord Bbmin [bb3@super, db4@super, f4@super, bb4@super, bb2@sin]
+chord Ab [ab3@super, c4@super, eb4@super, ab4@super, ab2@sin]
+chord Gb [gb3@super, bb3@super, db4@super, gb4@super, gb2@sin]
+chord Eb [eb3@super, g3@super, bb3@super, eb4@super, eb2@sin]
+
+
+loop(0, 1, 16){play(eb2@kick, 0, 0.5)}
+loop(0, 1, 16){play(eb2@kick, 0, 0.5)}
+
+play(Bbmin, 0, 4.25)
+play(Ab, 4, 5.75)
+play(Gb, 5.5, 7.75)
+play(Eb, 7.5, 16.25)

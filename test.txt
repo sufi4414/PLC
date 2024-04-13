@@ -1,6 +1,4 @@
 chord Dmaj [c3@saw, e3@saw, g3@saw]
 chord Cmaj [c3@saw, e3@saw, g3@saw]
-play(Dmaj, 5, 3)
 play(Cmaj, 2.25, 3)
 play( as4@triangle, 1.25, 3.75 )
-play(Dmaj, 5, 3)

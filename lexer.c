@@ -18,14 +18,14 @@ typedef enum {
     TOKEN_PUNCT_RIGHT_CURLY,
     TOKEN_PUNCT_LEFT_SQUARE,
     TOKEN_PUNCT_RIGHT_SQUARE,
-    TOKEN_PUNCT_END_OF_LINE,
+    //TOKEN_PUNCT_END_OF_LINE,
     TOKEN_OP_AT,
     TOKEN_COMMA,
 	TOKEN_IDENTIFIER,
 	TOKEN_LITERAL_INT,
     TOKEN_LITERAL_FLOAT,
-    TOKEN_LITERAL_CHAR,
-    TOKEN_LITERAL_STRING,
+    //TOKEN_LITERAL_CHAR,
+    //TOKEN_LITERAL_STRING,
     TOKEN_UNKNOWN
 } TokenType;
 
@@ -132,7 +132,7 @@ TokenType is_punctuation_strcmp(const char *lexeme) {
         {"}", TOKEN_PUNCT_RIGHT_CURLY},
         {"[", TOKEN_PUNCT_LEFT_SQUARE},
         {"]", TOKEN_PUNCT_RIGHT_SQUARE},
-        {";", TOKEN_PUNCT_END_OF_LINE},
+        //{";", TOKEN_PUNCT_END_OF_LINE},
         {NULL, TOKEN_UNKNOWN} // Sentinel value
     };
 
@@ -268,9 +268,9 @@ int main(int argc, char ** argv) {
                 (candidate_token_type = is_punctuation_strcmp(candidate_lexeme)) != TOKEN_UNKNOWN ||
                 (candidate_token_type = is_identifier_regex(candidate_lexeme) ? TOKEN_IDENTIFIER : TOKEN_UNKNOWN) != TOKEN_UNKNOWN ||
                 (candidate_token_type = is_integer_literal_regex(candidate_lexeme) ? TOKEN_LITERAL_INT : TOKEN_UNKNOWN) != TOKEN_UNKNOWN ||
-                (candidate_token_type = is_float_literal_regex(candidate_lexeme) ? TOKEN_LITERAL_FLOAT : TOKEN_UNKNOWN) != TOKEN_UNKNOWN ||
-                (candidate_token_type = is_char_literal_regex(candidate_lexeme) ? TOKEN_LITERAL_CHAR : TOKEN_UNKNOWN) != TOKEN_UNKNOWN ||
-                (candidate_token_type = is_string_literal_regex(candidate_lexeme) ? TOKEN_LITERAL_STRING : TOKEN_UNKNOWN) != TOKEN_UNKNOWN) {
+                (candidate_token_type = is_float_literal_regex(candidate_lexeme) ? TOKEN_LITERAL_FLOAT : TOKEN_UNKNOWN) != TOKEN_UNKNOWN ){
+                //(candidate_token_type = is_char_literal_regex(candidate_lexeme) ? TOKEN_LITERAL_CHAR : TOKEN_UNKNOWN) != TOKEN_UNKNOWN ||
+                //(candidate_token_type = is_string_literal_regex(candidate_lexeme) ? TOKEN_LITERAL_STRING : TOKEN_UNKNOWN) != TOKEN_UNKNOWN) {
 					token_type = candidate_token_type;
 					longest_match = candidate_match_length;
 					strcpy(matched_lexeme, candidate_lexeme);

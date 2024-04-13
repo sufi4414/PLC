@@ -1,10 +1,11 @@
-chord Fmaj7 [f3@saw, a3@saw, c4@saw, e4@saw, f2@triangle]
-chord E7 [e3@saw, gs3@saw, b3@saw, d4@saw, e2@triangle]
-chord Amin [a3@saw, c4@saw, e4@saw, g4@saw, a2@triangle]
-chord Abmin [ab3@saw, b3@saw, eb4@saw, gb4@saw, ab2@triangle]
-chord Gmin [g3@saw, b3@saw, d4@saw, f4@saw, g2@triangle]
-chord Cmaj [g3@saw, cb3@saw, c4@saw, e4@saw, c2@triangle]
-chord C7 [g3@saw, b3@saw, c4@saw, e4@saw, c2@triangle]
+chord Fmaj7 [f3@super, a3@super, c4@super, e4@super, f2@triangle]
+chord E7 [e3@super, gs3@super, b3@super, d4@super, e2@triangle]
+chord Amin [a3@super, c4@super, e4@super, g4@super, a2@triangle]
+chord Abmin [ab3@super, b3@super, eb4@super, gb4@super, ab2@triangle]
+chord Gmin [g3@super, b3@super, d4@super, f4@super, g2@triangle]
+chord Cmaj [g3@super, cb3@super, c4@super, e4@super, c2@triangle]
+chord C7 [g3@super, b3@super, c4@super, e4@super, c2@triangle]
+
 
 loop(0, 16, 4){
   play(Fmaj7, 0, 1)

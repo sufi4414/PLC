@@ -38,7 +38,8 @@ SIN_WAVE,
 TRIANGLE_WAVE,
 SQUARE_WAVE,
 SAW_WAVE,
-KICK
+KICK,
+SUPER
 } wave_shape;
 
 
@@ -55,7 +56,7 @@ int count_lines(FILE* file) // stolen from https://stackoverflow.com/a/70708991
         if (ferror(file))
             return -1;
 
-        int i;
+        size_t i;
         for(i = 0; i < res; i++)
             if (buf[i] == '\n')
                 counter++;
@@ -70,7 +71,9 @@ int count_lines(FILE* file) // stolen from https://stackoverflow.com/a/70708991
 
 
 const int sample_rate = 16000;
-const int ms_per_beat = 500; // bpm of 120
+const int bpm = 140;
+//const int ms_per_beat = 500; // bpm of 120
+const int ms_per_beat = (60*1000)/bpm; // bpm of 120
 const int samples_per_beat = (sample_rate * ms_per_beat) / 1000;
 //const int buffer_size = num_measures_to_play * beats_per_measure * samples_per_beat;
 
@@ -87,6 +90,16 @@ short int square_wave(int i, double freq) {
 
 short int saw_wave(int i, double freq) {
   return 2*(fmodf( (i*freq/sample_rate), 1.0)-0.5) * 3000;
+}
+
+short int super_wave(int i, double freq) {
+  short out = 0;
+  out += 2*(fmodf( (i*freq/sample_rate), 1.0)-0.5) * 1600;
+  out += 2*(fmodf( (i*(freq*1.02)/sample_rate), 1.0)-0.5) * 400;
+  out += 2*(fmodf( (i*(freq+1)/sample_rate), 1.0)-0.5) * 1000;
+  out += 2*(fmodf( (i*(freq-1)/sample_rate), 1.0)-0.5) * 1000;
+  out += 2*(fmodf( (i*(freq*0.978)/sample_rate), 1.0)-0.5) * 400;
+  return out;
 }
 
 short int triangle_wave(int i, double freq) {
@@ -120,6 +133,7 @@ void play(struct Note note, short int * buffer, int buffer_size)
   else if (strcmp(note.wave, "saw") == 0) {wave = SAW_WAVE;}
   else if (strcmp(note.wave, "square") == 0) {wave = SQUARE_WAVE;}
   else if (strcmp(note.wave, "kick") == 0) {wave = KICK;}
+  else if (strcmp(note.wave, "super") == 0) {wave = SUPER;}
   else {wave = SIN_WAVE;} // set sin wave as the default
 
 
@@ -163,6 +177,9 @@ void play(struct Note note, short int * buffer, int buffer_size)
       case KICK:
         buffer[i] += kick_wave(current_position, freq) * amplitude_multiplier;
         break;
+      case SUPER:
+        buffer[i] += super_wave(current_position, freq) * amplitude_multiplier;
+        break;
     }
 
   }
@@ -170,7 +187,7 @@ void play(struct Note note, short int * buffer, int buffer_size)
 
 
 
-int main(int argc, char **argv)
+int main()
 {
   FILE *fp_notes;
   int num_lines;
@@ -222,10 +239,10 @@ int main(int argc, char **argv)
 
   // write the wav header
  
-  strncpy(wavh.riff, "RIFF", 4);
-  strncpy(wavh.wave, "WAVE", 4);
-  strncpy(wavh.fmt, "fmt ", 4);
-  strncpy(wavh.data, "data", 4);
+  memcpy(wavh.riff, "RIFF", 4);
+  memcpy(wavh.wave, "WAVE", 4);
+  memcpy(wavh.fmt, "fmt ", 4);
+  memcpy(wavh.data, "data", 4);
 
   wavh.chunk_size = 16;
   wavh.format_tag = 1;
@@ -237,7 +254,7 @@ int main(int argc, char **argv)
   const int num_bytes = 2;
   wavh.dlength = buffer_size * num_bytes;
 
-  FILE *fp = fopen("test.wav", "wb");
+  FILE *fp = fopen("output.wav", "wb");
   fwrite(&wavh, 1, 44, fp);
   fwrite(buffer, 2, buffer_size, fp);
   free(buffer);

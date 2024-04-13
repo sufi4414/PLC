@@ -24,7 +24,9 @@ chordtail -> TOKEN_COMMA note chordtail | ε
 note -> TOKEN_IDENTIFIER TOKEN_OP_AT TOKEN_IDENTIFIER
 
 */
-TokenType parse_token_type(int type) {
+
+
+/*(TokenType parse_token_type(int type) {
     switch (type) {
         case 0: return TOKEN_KEYWORD_PLAY;
         case 1: return TOKEN_KEYWORD_LOOP;
@@ -45,7 +47,28 @@ TokenType parse_token_type(int type) {
         case 16: return TOKEN_LITERAL_STRING;
         default: return TOKEN_UNKNOWN;
     }
+}*/
+
+TokenType parse_token_type(int type) {
+    switch (type) {
+        case 0: return TOKEN_KEYWORD_PLAY;
+        case 1: return TOKEN_KEYWORD_LOOP;
+        case 2: return TOKEN_KEYWORD_CHORD;
+        case 3: return TOKEN_PUNCT_LEFT_PAREN;
+        case 4: return TOKEN_PUNCT_RIGHT_PAREN;
+        case 5: return TOKEN_PUNCT_LEFT_CURLY;
+        case 6: return TOKEN_PUNCT_RIGHT_CURLY;
+        case 7: return TOKEN_PUNCT_LEFT_SQUARE;
+        case 8: return TOKEN_PUNCT_RIGHT_SQUARE;
+        case 9: return TOKEN_OP_AT;
+        case 10: return TOKEN_COMMA;
+        case 11: return TOKEN_IDENTIFIER;
+        case 12: return TOKEN_LITERAL_INT;
+        case 13: return TOKEN_LITERAL_FLOAT;
+        default: return TOKEN_UNKNOWN;
+    }
 }
+
 
 SymbolTable *create_symbol_table() {
     SymbolTable *table = (SymbolTable *)malloc(sizeof(SymbolTable));

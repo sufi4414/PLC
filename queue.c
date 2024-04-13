@@ -14,7 +14,7 @@ typedef struct {
 } Queue;
 
 int is_valid_waveform(char *wave) {
-    char *valid_waveforms[] = {"sin", "triangle", "saw", "square", "kick"}; //TODO add supersaw
+    char *valid_waveforms[] = {"sin", "triangle", "saw", "square", "kick", "super"}; //TODO add supersaw
     for (int i = 0; i < sizeof(valid_waveforms) / sizeof(valid_waveforms[0]); i++) {
         if (strcmp(wave, valid_waveforms[i]) == 0) {
             return 1; // valid
