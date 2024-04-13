@@ -230,9 +230,10 @@ bool is_identifier_regex(const char *lexeme) {
 
 }
 
-int main() {
+int main(int argc, char ** argv) {
 
-    const char *filename = "test.txt";
+    //const char *filename = "test.txt";
+    const char *filename = argv[1];
     char *source_code = read_source_code(filename);
     if (source_code == NULL) {
         fprintf(stderr, "Error reading source code from '%s'\n", filename);
@@ -253,11 +254,11 @@ int main() {
 		// Current lexeme candidate to be matched
         TokenType token_type = TOKEN_UNKNOWN;
         size_t longest_match = 0;
-        char matched_lexeme[256] = {0};
+        char  * matched_lexeme = calloc(source_code_length+2, sizeof(char));
+        char * candidate_lexeme = calloc(source_code_length+2, sizeof(char));
 		
 		// Left to right scan producing candidate lexemes and testing them
         for (size_t i = current_position; i < source_code_length; ++i) {
-            char candidate_lexeme[256] = {0};
             memcpy(candidate_lexeme, source_code + current_position, i - current_position + 1);
             TokenType candidate_token_type = TOKEN_UNKNOWN;
             size_t candidate_match_length = i - current_position + 1;
