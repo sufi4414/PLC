@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
             return 1;
         }
 
-        printf("Parser process completed successfully\n");
+        printf("Writer process completed successfully\n");
     }
 
 

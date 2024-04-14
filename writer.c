@@ -154,7 +154,7 @@ void play(struct Note note, short int * buffer, int buffer_size)
     }
     else if (current_position  > end_index - start_index) // release of 2000 samples
     {
-      amplitude_multiplier = 0.8 * (2000-(i-end_index))/2000;
+      amplitude_multiplier = 0.8 * (500-(i-end_index))/500;
     }
     else // sustain
     {

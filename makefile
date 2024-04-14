@@ -5,8 +5,8 @@ CFLAGS = -Wall -Wextra
 
 all: lexer q writer text2wav
 
-lexer : lexer.c
-	$(CC) $(CFLAGS) -o lexer lexer.c
+lexer : lexer2.c
+	$(CC) $(CFLAGS) -o lexer lexer2.c
 
 q: parser.c fsm.c queue.c
 	$(CC) $(CFLAGS) parser.c fsm.c queue.c -o q 
