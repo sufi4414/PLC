@@ -145,7 +145,7 @@ double note_to_frequency( char *noteToken) {
             return noteFrequencies[i].frequencies[octave];
         }
     }
-    // If note not found, return -1 or handle the error as needed
+
     return -1.0;
 
 }
@@ -169,7 +169,7 @@ void handle_play( Queue *queue, FILE *csvFile, SymbolTable *symbolTable) {
             exit(1); 
         }
 
-        // It's a chord, handle each note in the chord
+        //handle each note in the chord
         for (int i = 0; i < chord->noteCount; i++) {
             //fprintf(csvFile, "%s, ", chord->notes[i].name);
 
@@ -185,7 +185,7 @@ void handle_play( Queue *queue, FILE *csvFile, SymbolTable *symbolTable) {
         
         queue_dequeue(queue); // Skip ')' at the end, assuming correct syntax
     } else {
-        // Assume it's a note if not found as a chord
+        // Assume it's a note
         //fprintf(csvFile, "%s, ", identifierToken.lexeme);
 
         double frequency = note_to_frequency(identifierToken.lexeme);
@@ -227,7 +227,6 @@ void handle_play_offset(Queue *queue, FILE *csvFile, SymbolTable *symbolTable, f
         queue_dequeue(queue); // Skip ','
         Token secondNumberToken = queue_dequeue(queue); // Second number
 
-        //if (strcmp(firstNumberToken.lexeme, secondNumberToken.lexeme) > 0) {
         if(atof(firstNumberToken.lexeme) > atof(secondNumberToken.lexeme)){
             fprintf(stderr, "Error: Start time is greater than end time(handplayoffset chord)\n");
             exit(1); 
@@ -235,7 +234,7 @@ void handle_play_offset(Queue *queue, FILE *csvFile, SymbolTable *symbolTable, f
         for (int i = 0 ; i < repetitions ; i++ ){
         float start = atof(firstNumberToken.lexeme) + startTime + i * offset;
         float end = atof(secondNumberToken.lexeme) + startTime + i * offset;
-        // It's a chord, handle each note in the chord
+        // handle each note in the chord
             for (int j = 0; j < chord->noteCount; j++) {
                 if (!is_valid_waveform(chord->notes[j].wave)) {
                     fprintf(stderr, "Error: Invalid waveform %s\n", chord->notes[j].wave);
@@ -251,7 +250,7 @@ void handle_play_offset(Queue *queue, FILE *csvFile, SymbolTable *symbolTable, f
         
         queue_dequeue(queue); // Skip ')' at the end, assuming correct syntax
     } else {
-        // Assume it's a note if not found as a chord
+        // Assume it's a note
         double frequency = note_to_frequency(identifierToken.lexeme);
 
         queue_dequeue(queue); // Skip '@'
@@ -264,16 +263,16 @@ void handle_play_offset(Queue *queue, FILE *csvFile, SymbolTable *symbolTable, f
 
         queue_dequeue(queue); // Skip ','
 
-        Token firstNumberToken = queue_dequeue(queue); // First number
+        Token firstNumberToken = queue_dequeue(queue); 
         printf("firstNumberToken: %s\n", firstNumberToken.lexeme);
         queue_dequeue(queue); // Skip ','
 
-        Token secondNumberToken = queue_dequeue(queue); // Second number
+        Token secondNumberToken = queue_dequeue(queue); 
         printf("secondNumberToken: %s\n", secondNumberToken.lexeme);
         
         if(atof(firstNumberToken.lexeme) > atof(secondNumberToken.lexeme)){
             fprintf(stderr, "Error: Start time is greater than end time(handleplayoffset note)\n");
-            exit(1); // Stop the program due to error
+            exit(1); 
         }
 
         for (int i = 0 ; i < repetitions ; i++ ){

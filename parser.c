@@ -3,52 +3,6 @@
 #include <string.h>
 #include "tokens.h"
 
-/*
-some grammar rules
-
-chord Cmaj [c3@saw, e3@saw, g3@saw]
-play(Cmaj, 2.25, 3)
-
-start -> statementlist
-statementlist -> statement statementlist | ε
-statement -> playstatement | chordstatement
-
-playstatement -> TOKEN_KEYWORD_PLAY TOKEN_PUNCT_LEFT_PAREN playargs TOKEN_PUNCT_RIGHT_PAREN
-playargs -> TOKEN_IDENTIFIER TOKEN_COMMA number TOKEN_COMMA number
-number -> TOKEN_LITERAL_FLOAT | TOKEN_LITERAL_INT
-
-
-chordstatement -> TOKEN_KEYWORD_CHORD TOKEN_IDENTIFIER TOKEN_PUNCT_LEFT_SQUARE chordnotes TOKEN_PUNCT_RIGHT_SQUARE
-chordnotes -> note chordtail
-chordtail -> TOKEN_COMMA note chordtail | ε
-note -> TOKEN_IDENTIFIER TOKEN_OP_AT TOKEN_IDENTIFIER
-
-*/
-
-
-/*(TokenType parse_token_type(int type) {
-    switch (type) {
-        case 0: return TOKEN_KEYWORD_PLAY;
-        case 1: return TOKEN_KEYWORD_LOOP;
-        case 2: return TOKEN_KEYWORD_CHORD;
-        case 3: return TOKEN_PUNCT_LEFT_PAREN;
-        case 4: return TOKEN_PUNCT_RIGHT_PAREN;
-        case 5: return TOKEN_PUNCT_LEFT_CURLY;
-        case 6: return TOKEN_PUNCT_RIGHT_CURLY;
-        case 7: return TOKEN_PUNCT_LEFT_SQUARE;
-        case 8: return TOKEN_PUNCT_RIGHT_SQUARE;
-        case 9: return TOKEN_PUNCT_END_OF_LINE;
-        case 10: return TOKEN_OP_AT;
-        case 11: return TOKEN_COMMA;
-        case 12: return TOKEN_IDENTIFIER;
-        case 13: return TOKEN_LITERAL_INT;
-        case 14: return TOKEN_LITERAL_FLOAT;
-        case 15: return TOKEN_LITERAL_CHAR;
-        case 16: return TOKEN_LITERAL_STRING;
-        default: return TOKEN_UNKNOWN;
-    }
-}*/
-
 TokenType parse_token_type(int type) {
     switch (type) {
         case 0: return TOKEN_KEYWORD_PLAY;
@@ -68,8 +22,7 @@ TokenType parse_token_type(int type) {
         default: return TOKEN_UNKNOWN;
     }
 }
-
-
+/* to store variables that user declared*/
 SymbolTable *create_symbol_table() {
     SymbolTable *table = (SymbolTable *)malloc(sizeof(SymbolTable));
     if (table) {
@@ -82,7 +35,7 @@ void symbol_table_insert_chord(SymbolTable *table, Chord *chord) {
     SymbolNode *node = (SymbolNode *)malloc(sizeof(SymbolNode));
     if (node) {
         node->identifier = strdup(chord->name);
-        node->chord = chord; // Assume the chord has been allocated and set up properly
+        node->chord = chord; 
         node->next = table->head;
         table->head = node;
     }
@@ -205,7 +158,7 @@ Note *parse_chordnotes(Parser *parser, int *noteCount) {
         if (peek(parser).type == TOKEN_COMMA) {
             advance(parser); // Consume the comma
         }
-        // consume(parser, TOKEN_IDENTIFIER, "Expected note identifier");
+
         Token noteName = advance(parser);
         consume(parser, TOKEN_OP_AT, " parsechordnotes Expected '@'");
         Token waveName = advance(parser);
@@ -256,7 +209,6 @@ void parse_loopstatement(Parser *parser, SymbolTable *symbolTable) {
 
     consume(parser, TOKEN_PUNCT_LEFT_CURLY, "Expected '{'");
 
-    // Parse play statements inside the loop
     while (peek(parser).type != TOKEN_PUNCT_RIGHT_CURLY) {
         if (peek(parser).type == TOKEN_KEYWORD_PLAY) {
             parse_playstatement(parser);
@@ -268,36 +220,6 @@ void parse_loopstatement(Parser *parser, SymbolTable *symbolTable) {
     consume(parser, TOKEN_PUNCT_RIGHT_CURLY, "Expected '}'");
 }
 
-
-// void parse_statement(Parser *parser, SymbolTable *symbolTable) {
-//     switch (peek(parser).type) {
-//         case TOKEN_KEYWORD_PLAY:
-//             parse_playstatement(parser);
-//             break;
-//         case TOKEN_KEYWORD_CHORD:
-//             parse_chordstatement(parser, symbolTable);
-//             break;
-//         default:
-//             error("Expected 'play' or 'chord'");
-//     }
-// }
-
-// void parse_statementlist(Parser *parser, SymbolTable *symbolTable) {
-//     while (parser->current < parser->count) {
-//         parse_statement(parser, symbolTable);
-//     }
-// }
-
-// SymbolTable *parse_program(Parser *parser) {
-//     SymbolTable *symbolTable = malloc(sizeof(SymbolTable));
-//     symbolTable->head = NULL;
-
-//     parse_statementlist(parser, symbolTable);
-
-//     return symbolTable;
-// }
-
-
 Token new_token(TokenType type, const char* lexeme, int line_number) {
     Token token;
     token.type = type;
@@ -306,7 +228,6 @@ Token new_token(TokenType type, const char* lexeme, int line_number) {
     return token;
 }
 
-// Function to free token resources
 void free_token_resources(Token *tokens, size_t count) {
     for (size_t i = 0; i < count; ++i) {
         free(tokens[i].lexeme);
