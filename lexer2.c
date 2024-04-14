@@ -126,6 +126,7 @@ void regex_matcher(char ** ptr, Token *** token_stream, size_t *token_count, int
 int main(int argc, char ** argv){
     const char *filename = argv[1];
     char *source_code = read_source_code(filename);
+    char *source_code_original = source_code;
     if (source_code == NULL) {
         fprintf(stderr, "Error reading source code from '%s'\n", filename);
         return 1;
@@ -204,7 +205,7 @@ const char *patterns[] = {
     }
 
     // Write token information to the file
-    printf("tokenS!!!!\n");
+    //printf("tokenS!!!!\n");
     for (size_t i = 0; i < token_count; i++) {
 
         //printf("%s", token_stream[i]->lexeme);
@@ -223,7 +224,7 @@ const char *patterns[] = {
     free(token_stream);
 	
 	// Free source code
-    //free(source_code);
+    free(source_code_original);
 
     return 0;
 }

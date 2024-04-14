@@ -1,5 +1,9 @@
 # PLC
 
+## Quick usage guide
+
+Run `make` in the directory. Then run `./text2wav {input}.txt`. The 3 premade `input` files are `apple.txt`, `ghosts.txt` and `future.txt`. After running the command, you can listen to the outputted `output.wav`.
+
 ## Introduction
 
 In this project, we will turn a coding-like text into a set of notes to be played, which will in turn turn it into wav audio. 
