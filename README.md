@@ -1,5 +1,9 @@
 # PLC
 
+## Quick usage guide
+
+Run `make` in the directory. Then run `./text2wav {input}.txt`. The 3 premade `input` files are `apple.txt`, `ghosts.txt` and `future.txt`. After running the command, you can listen to the outputted `output.wav`.
+
 ## Introduction
 
 In this project, we will turn a coding-like text into a set of notes to be played, which will in turn turn it into wav audio. 
@@ -124,41 +128,6 @@ Also note that the `duration` should limit the notes that you can put in the loo
 You could probably pull stupid stuff like playing loops in loops but let's disallow that for now and just let the user put `play` commands in loops
 
 
-#### Sections
-
-```
-section sectionName {
-  ...
-}
-
-play_section(sectionName, start_time)
-
-```
-
-Something similar to the loops, you can define a `section` which specifies a set of notes to play in the curly braces. Basically when you call `play_section`, it will expand everything in the curly braces, and add the `start_time` value to all the start and end timings of anything in the section.
-
-Unlike the loops, this only has a `start_time` so there are no limits on how long this section will be. What this means is that you can put other (existing) loops and sections in a single section. 
-
-```
-section Intro {
-...
-}
-section A {
-...
-}
-
-section B {
-...
-}
-
-...
-
-play_section(intro, 0)
-play_section(A, 16)
-play_section(A, 32)
-play_section(B, 48)
-
-```
 
 ## LL(1) Grammar Rules
 
@@ -175,8 +144,6 @@ Statement → PlayStatement
 Statement → LoopStatement
 
 Statement → ChordStatement
-
-~~Statement → SectionStatement~~ (Do later)
 
 PlayStatement → `play` `(` Note `,` `float` `,` `float` `)`
 
@@ -241,19 +208,3 @@ For the offset function, you basically copy and paste the contents of the Statem
 |---|---|
 |Offset(play(note, start, end))|play(note, start+offset, end+offset)|
 
-
-
-TODO
-- Find a way to convert a correct CSV to notes for the writer
-- Use the CSV to get the maximum buffer size needed ie by taking the maximum ending time
-- Let user edit the BPM
-- Convert the whole range of notes into their frequencies (https://muted.io/note-frequencies/)
-
-
-
-
-EXTRA FEATURES
-- Let the user define chords (groups of notes) to play at one time
-- Be able to play different kinds of sound wave shapes (eg. saw wave, triangle wave, square wave)
-- Maybe load other wav files eg. drums into the program and write them as notes
-- Add looping
