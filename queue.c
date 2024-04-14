@@ -127,9 +127,6 @@ NoteFreq noteFrequencies[] = {
 
 // Function to convert note name to frequency
 double note_to_frequency( char *noteToken) {
-    // Implementation of note to frequency conversion goes here
-    // You can use a lookup table or a mathematical formula to convert note names to frequencies
-    // Extract the note name and octave from the note token
     char noteName[3];
     int octave;
     if (strlen(noteToken) == 3) {
@@ -190,7 +187,7 @@ void handle_play( Queue *queue, FILE *csvFile, SymbolTable *symbolTable) {
     } else {
         // Assume it's a note if not found as a chord
         //fprintf(csvFile, "%s, ", identifierToken.lexeme);
-        //adding the frequency here
+
         double frequency = note_to_frequency(identifierToken.lexeme);
         fprintf(csvFile, "%.2f, ", frequency);
 
@@ -210,12 +207,11 @@ void handle_play( Queue *queue, FILE *csvFile, SymbolTable *symbolTable) {
         Token secondNumberToken = queue_dequeue(queue); // Second number
         queue_dequeue(queue); // Skip ')' at the end, assuming correct syntax
 
-        //if (strcmp(firstNumberToken.lexeme, secondNumberToken.lexeme) > 0) {
         if(atof(firstNumberToken.lexeme) > atof(secondNumberToken.lexeme)){
             fprintf(stderr, "Error: Start time is greater than end time\n");
             exit(1); // Stop the program due to error
         }
-        // Continue writing the rest of the data to CSV
+
         fprintf(csvFile, "%s, %s, %s\n", firstNumberToken.lexeme, secondNumberToken.lexeme, waveToken.lexeme);
     }
 }
@@ -275,13 +271,11 @@ void handle_play_offset(Queue *queue, FILE *csvFile, SymbolTable *symbolTable, f
         Token secondNumberToken = queue_dequeue(queue); // Second number
         printf("secondNumberToken: %s\n", secondNumberToken.lexeme);
         
-
-        //if (strcmp(firstNumberToken.lexeme, secondNumberToken.lexeme) > 0) {
         if(atof(firstNumberToken.lexeme) > atof(secondNumberToken.lexeme)){
             fprintf(stderr, "Error: Start time is greater than end time(handleplayoffset note)\n");
             exit(1); // Stop the program due to error
         }
-        // Continue writing the rest of the data to CSV
+
         for (int i = 0 ; i < repetitions ; i++ ){
             fprintf(csvFile, "%.2f, ", frequency);
             fprintf(csvFile, "%.2f, ",  atof(firstNumberToken.lexeme) + startTime + i * offset);
